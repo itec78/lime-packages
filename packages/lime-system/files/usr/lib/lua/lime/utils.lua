@@ -73,6 +73,8 @@ function utils.applyMacTemplate16(template, mac)
 	for i=1,6,1 do template = template:gsub("%%M"..i, mac[i]) end
 	local macid = utils.get_id(mac)
 	for i=1,6,1 do template = template:gsub("%%m"..i, macid[i]) end
+	local macbanana = utils.mac2banana(mac)
+	for i=4,10,2 do template = template:gsub("%%B"..i, string.sub(macbanana, -i)) end
 	return template
 end
 
@@ -524,6 +526,30 @@ function utils.write_obj_store(datafile, data)
         fd:close()
         return true
     end
+end
+
+function utils.mac2banana(mac)
+    minlength = 12
+    alphabets = {{"b","c","d","f","g","l","m","n","p","r","s","t","v","z"}, {"a","e","i","o","u"}};
+    shiftalpha = 0
+    alphaend = 0
+
+    numalpha = #alphabets
+    v = tonumber(table.concat(mac,""),16)
+    st = ""
+    length = 0
+    idx = (numalpha - 1 + shiftalpha + alphaend) % numalpha
+    while (not (v == 0 and idx == (numalpha - 1 + shiftalpha) % numalpha and length >= minlength))
+    do
+        al = alphabets[idx + 1]
+        r = v % #al
+        v = math.floor(v / #al)
+        st = al[r + 1] .. st
+
+        idx = (idx + numalpha - 1) % numalpha;
+        length = length + 1
+    end
+    return st
 end
 
 return utils
